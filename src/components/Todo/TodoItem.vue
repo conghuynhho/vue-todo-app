@@ -1,35 +1,68 @@
 <template>
-  <div>
-    <li class="todo-item">
-      <h4 id="todo.id" onClick="{handleToggleComplete}">
-        <!-- TODO: xu ly toggle complete -->
-        {{ todo.content }}
-      </h4>
-      <div class="item-button-group">
-        <button onClick="{handleToggleForm}">
-          <!-- TODO: xu ly toggle update form -->
-          <i class="fas fa-pen" />
-        </button>
-        <button onClick="{handleRemove}">
-          <!-- TODO: xu ly delete todo -->
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    </li>
-    <li class="todo-item">
-      <div class="edit-todo-form">
-        <input type="text" name="" id="" defaultValue="{todo.content}" />
-        <button onClick="{handleUpdate}">Save</button>
-        <!-- TODO: xu ly update todo -->
-      </div>
-    </li>
-  </div>
+  <li class="todo-item" v-if="isUpdate">
+    <div class="edit-todo-form">
+      <input type="text" v-model="updateText" @keypress.enter="handleOnSave(todo.id)"/>
+      <button @click="() => handleOnSave(todo.id)">Save</button>
+    </div>
+  </li>
+
+  <li class="todo-item" v-else>
+    <h4
+      :id="todo.id"
+      v-bind:class="[{ completed: todo.isCompleted }, 'item-text']"
+      @click="handleToggleComplete(todo.id)"
+    >
+      {{ todo.content }}
+    </h4>
+    <div class="item-button-group">
+      <button @click="handleToggleUpdateForm">
+        <i class="fas fa-pen" />
+      </button>
+      <button @click="handleRemove(todo.id)">
+        <!-- TODO: xu ly delete todo -->
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  </li>
 </template>
 
 <script>
+import { mapActions } from "vuex";
 export default {
   name: "TodoItem",
   props: ["todo"],
+  data() {
+    return {
+      isUpdate: false,
+      updateText: this.todo.content,
+    };
+  },
+  methods: {
+    handleToggleUpdateForm() {
+      this.isUpdate = !this.isUpdate;
+    },
+    handleUpdate(todoId, isToggleComplete) {
+      const payload = {
+        id: todoId,
+        content: this.updateText,
+        isCompleted: isToggleComplete
+          ? !this.todo.isCompleted
+          : this.todo.isCompleted,
+      };
+      this.updateTodo(payload);
+    },
+    handleOnSave(todoId) {
+      this.handleUpdate(todoId);
+      this.handleToggleUpdateForm();
+    },
+    handleToggleComplete(todoId) {
+      this.handleUpdate(todoId, true);
+    },
+    handleRemove(todoId){
+      this.deleteTodo(todoId)
+    },
+    ...mapActions(["updateTodo","deleteTodo"]),
+  },
 };
 </script>
 

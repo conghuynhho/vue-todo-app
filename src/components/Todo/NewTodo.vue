@@ -2,16 +2,36 @@
   <div class="new-todo-group">
     <div class="title">New todo</div>
     <div class="input-group">
-      <input type="text" placeholder="New Todo" />
-      <a href="/#" class="add-btn" onClick="{handleCreateNew}"> Add Todo </a>
+      <input type="text" placeholder="New Todo" v-model="newTodoContent" @keypress.enter="handleCreateNew" />
+      <a class="add-btn" @click="handleCreateNew"> Add Todo </a>
       <!-- TODO: xu ly add todo -->
     </div>
   </div>
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+import { v4 as uuidv4 } from 'uuid';
+
 export default {
   name: "NewTodo",
+  data(){
+    return {
+      newTodoContent: ''
+    }
+  },
+  methods: {
+    handleCreateNew(){
+      const newTodoObject = {
+        id: uuidv4(),
+        content: this.newTodoContent,
+        isCompleted: false
+      }
+      this.newTodo(newTodoObject)
+      this.newTodoContent = ''
+    },
+    ...mapActions(['newTodo'])
+  }
 };
 </script>
 
